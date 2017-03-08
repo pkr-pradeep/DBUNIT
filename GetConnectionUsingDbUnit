@@ -1,17 +1,14 @@
 package org.dbunit.pkr;
 
 import java.io.FileInputStream;
-import java.sql.Connection;
+import java.io.FileOutputStream;
 
-import org.dbunit.DBTestCase;
 import org.dbunit.IDatabaseTester;
 import org.dbunit.PropertiesBasedJdbcDatabaseTester;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.dbunit.operation.DatabaseOperation;
-import org.junit.Before;
-import org.junit.Test;
 
 public class GetConnectionUsingDbUnit{
 
@@ -21,7 +18,7 @@ public class GetConnectionUsingDbUnit{
 		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:oracle:thin:admin/amin123@localhost:1521:xe" );
 		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "admin" );
 		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "admin123" );
-		System.setProperty(	PropertiesBasedJdbcDatabaseTester.DBUNIT_SCHEMA, "PKR");	
+		System.setProperty(	PropertiesBasedJdbcDatabaseTester.DBUNIT_SCHEMA, "BDC");	
 	}
 	
 	public void importDataSet() throws Exception {
@@ -34,15 +31,18 @@ public class GetConnectionUsingDbUnit{
 		IDatabaseConnection conn;
 		try{
 			conn = databaseTester.getConnection();
-			int rowCount = conn.getRowCount("T_PKR_EMPLOYEE", " where emp_dept = 'NGO'");
+			int rowCount = conn.getRowCount("T_BDC_ACCT");
 			System.out.println(rowCount);
+			dataSet = conn.createDataSet(new String[]{"T_BDC_ACCT"});
+			FlatXmlDataSet.write(dataSet, new FileOutputStream("full-dataset.xml"));
+			System.out.println(dataSet.getTableMetaData("T_BDC_ACCT").getColumns());
 		} catch (Exception e) {
 			System.out.println("out");
 		}
 	
-		databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
-		databaseTester.setDataSet(dataSet);
-		databaseTester.onSetup();
+		//databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
+		//databaseTester.setDataSet(dataSet);
+		//databaseTester.onSetup();
 	}
 	
 	protected IDataSet getDataSet() throws Exception {
