@@ -1,0 +1,51 @@
+package org.dbunit.pkr;
+
+import java.io.FileInputStream;
+
+import org.dbunit.DBTestCase;
+import org.dbunit.IDatabaseTester;
+import org.dbunit.PropertiesBasedJdbcDatabaseTester;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.operation.DatabaseOperation;
+import org.junit.Before;
+import org.junit.Test;
+
+public class GetConnectionUsingDbUnit{
+
+	public GetConnectionUsingDbUnit()
+	{
+		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_DRIVER_CLASS, "oracle.jdbc.driver.OracleDriver" );
+		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_CONNECTION_URL, "jdbc:oracle:thin:admin/amin123@localhost:1521:xe" );
+		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_USERNAME, "admin" );
+		System.setProperty( PropertiesBasedJdbcDatabaseTester.DBUNIT_PASSWORD, "admin123" );
+		System.setProperty(	PropertiesBasedJdbcDatabaseTester.DBUNIT_SCHEMA, "PKR");	
+	}
+	
+	public void importDataSet() throws Exception {
+		IDataSet dataSet = getDataSet();
+		cleanlyInsert(dataSet);
+	}
+	
+	private void cleanlyInsert(IDataSet dataSet) throws Exception {
+		IDatabaseTester databaseTester = new PropertiesBasedJdbcDatabaseTester();
+		databaseTester.setSetUpOperation(DatabaseOperation.CLEAN_INSERT);
+		databaseTester.setDataSet(dataSet);
+		databaseTester.onSetup();
+	}
+	
+	protected IDataSet getDataSet() throws Exception {
+		return new FlatXmlDataSetBuilder().build(new FileInputStream("C:\\Data\\NewLunaWS\\dbunit1\\src\\dataset.xml"));
+	}
+	
+	public static void main(String args[]){
+		try {
+			new GetConnectionUsingDbUnit().importDataSet();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+
+}
+
